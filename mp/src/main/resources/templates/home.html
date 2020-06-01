@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Home</title>
+</head>
+<body>
+<h1>
+	Hello world!  This is a WebSocket demo!
+	<div id="message">
+		
+	</div>
+	<input id="userName" name="userName" type="hidden" th:value="${userName}"/>
+</h1>
+
+<script type="text/javascript" th:src="@{/static/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/sockjs.min.js}"></script>
+
+
+<script type="text/javascript">
+	
+	$(function(){
+		//建立socket连接
+		var sock;
+		if ('WebSocket' in window) {
+			
+			sock = new WebSocket("ws://localhost:8989/socketServer");
+			
+	    } else if ('MozWebSocket' in window) {
+	    	sock = new MozWebSocket("<%=wsPath%>socketServer");
+	    } else {
+	    	sock = new SockJS("<%=basePath%>sockjs/socketServer");
+	    }
+		sock.onopen = function (e) {
+			console.log(e);
+			/*var userName = $("#userName").val();
+			console.log("用户登录"+userName);
+			$.ajax({
+				type: "GET",
+				url: "http://127.0.0.1:8989/main/message/init?userName="+userName,
+				contentType: "application/json;charset=UTF-8"
+			});*/
+	    };
+	    sock.onmessage = function (e) {
+	    	console.log(e)
+	    	//alert(e.data);
+	        $("#message").append("<p><font color='red'>"+e.data+"</font>")
+	    };
+	    sock.onerror = function (e) {
+	    	console.log(e);
+	    };
+	    sock.onclose = function (e) {
+	    	console.log(e);
+	    }
+	});
+	
+</script>
+
+</body>
+</html>
+

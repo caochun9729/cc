@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cc.dao.SysUserDao">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.cc.entity.SysUser">
+        <id column="USER_ID" property="userId"/>
+        <result column="USERNAME" property="username"/>
+        <result column="PASSWORD" property="password"/>
+        <result column="PHONE" property="phone"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="LOCK_FLAG" property="lockFlag"/>
+        <result column="DEL_FLAG" property="delFlag"/>
+        <result column="MAILBOX" property="mailbox"/>
+        <result column="REALNAME" property="realname"/>
+        <result column="SORT" property="sort"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        USER_ID, USERNAME, PASSWORD, PHONE, CREATE_TIME, UPDATE_TIME, LOCK_FLAG, DEL_FLAG, MAILBOX, REALNAME, SORT
+    </sql>
+
+</mapper>

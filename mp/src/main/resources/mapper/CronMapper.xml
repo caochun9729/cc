@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cc.dao.CronMapper" >
+    <resultMap id="BaseResultMap" type="com.cc.entity.Cron" >
+        <result column="cron_id" property="cronId" jdbcType="VARCHAR" />
+        <result column="cron" property="cron" jdbcType="VARCHAR" />
+    </resultMap>
+    <insert id="insert" parameterType="com.cc.entity.Cron" >
+    insert into cron (cron_id, cron)
+    values (#{cronId,jdbcType=VARCHAR}, #{cron,jdbcType=VARCHAR})
+  </insert>
+    <select id="selectAll" resultMap="BaseResultMap" >
+    select cron_id, cron
+    from cron
+  </select>
+</mapper>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>thymeleaf-测试</title>
+    <link rel="shortcut icon" th:href="@{static/img/favicon.ico}"/>
+
+</head>
+
+<body>
+<h1>thymeleaf-测试</h1>
+
+<h2>controller传入字符串参数:</h2>
+<!-- 通过类似JSP的EL表达式把值取出来 -->
+<div th:text="${str}"></div>
+
+<h2>thymeleaf条件判断:</h2>
+bool的值为:
+<span th:if="${bool}">true</span>
+<span th:unless="${bool}">false</span>
+
+<h2>thymeleaf循环遍历list集合:</h2>
+<!-- 循环遍历list集合 -->
+<ul>
+    <li th:each="temp : ${list}" th:text="${temp}"></li>
+</ul>
+
+</body>
+</html>

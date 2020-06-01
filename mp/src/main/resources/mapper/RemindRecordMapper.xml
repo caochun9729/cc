@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cc.dao.RemindRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.cc.entity.RemindRecord">
+        <id column="ID" property="id"/>
+        <result column="TYPE_CODE" property="typeCode"/>
+        <result column="TYPE_NAME" property="typeName"/>
+        <result column="USER_ID" property="userId"/>
+        <result column="OTHER_ID" property="otherId"/>
+        <result column="ROLE_CODE" property="roleCode"/>
+        <result column="ROLE_NAME" property="roleName"/>
+        <result column="CONTENT" property="content"/>
+        <result column="IS_AT" property="isAt"/>
+        <result column="IS_READ" property="isRead"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="UPDATE_TIME" property="updateTime"/>
+        <result column="UPDATE_BY" property="updateBy"/>
+        <result column="DELETE_TIME" property="deleteTime"/>
+        <result column="DELETE_BY" property="deleteBy"/>
+        <result column="DELETE_FLAG" property="deleteFlag"/>
+        <result column="IS_VISIBLE" property="isVisible"/>
+    </resultMap>
+
+    <resultMap id="RemindRecordPojo" type="com.cc.pojo.RemindRecordPojo">
+        <result column="OTHER_ID" property="otherId"/>
+        <result column="TYPE_CODE" property="typeCode"/>
+        <result column="TYPE_NAME" property="typeName"/>
+        <result column="USER_ID" property="userId"/>
+        <result column="OTHER_ID" property="otherId"/>
+        <result column="ROLE_CODE" property="roleCode"/>
+        <result column="ROLE_NAME" property="roleName"/>
+        <result column="CONTENT" property="content"/>
+        <result column="IS_AT" property="isAt"/>
+        <result column="IS_READ" property="isRead"/>
+        <result column="CREATE_TIME" property="createTime"/>
+        <result column="PRONAME" property="proName"/>
+        <result column="TASKNAME" property="taskName"/>
+        <result column="START_TIME" property="startTime"/>
+        <result column="REMIND_ID" property="remindId"/>
+        <result column="CREATE_BY" property="createBy"/>
+        <result column="HEAD_IMAGE_URL" property="headImageUrl"/>
+        <result column="WHETHER_TO_PASS" property="whetherToPass"/>
+        <result column="WHETHER_FINAL_REVIEW" property="whetherFinalReview"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, TYPE_CODE, TYPE_NAME, USER_ID, OTHER_ID, ROLE_CODE, ROLE_NAME, CONTENT, IS_AT, IS_READ, CREATE_TIME, CREATE_BY, UPDATE_TIME, UPDATE_BY, DELETE_TIME, DELETE_BY, DELETE_FLAG,IS_VISIBLE
+    </sql>
+
+
+
+    <select id="getReminderPojoByUserId"
+            parameterType="com.cc.pojo.RemindRecordParams"
+            resultMap="RemindRecordPojo">
+        select distinct
+        A.ID as
+        REMIND_ID,A.TYPE_CODE,A.TYPE_NAME,A.OTHER_ID,A.USER_ID,A.IS_AT,A.IS_READ,A.ROLE_CODE,A.ROLE_NAME,A.CONTENT,A.CREATE_TIME,A.PRONAME,A.TASKNAME,A.START_TIME,A.END_TIME,A.CREATE_BY,head.HEAD_IMAGE_URL,A.WHETHER_TO_PASS
+        as WHETHER_TO_PASS ,A.WHETHER_FINAL_REVIEW as WHETHER_FINAL_REVIEW
+        from (
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.create_time,p.name as PRONAME,'' as TASKNAME,p.start_time
+        as START_TIME,p.end_time
+        as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,'' as
+        WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join project p on t.other_id = p.id
+        WHERE t.type_code = '2' and p.delete_flag = '0' and t.delete_flag = '0'
+        and t.IS_VISIBLE = '0'
+        union all
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.create_time,concat(concat('来自项目《',p.name),'》任务：') as PRONAME,to_char(pt.content) as
+        TASKNAME,p.start_time as
+        START_TIME,p.end_time as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,''
+        as WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join Project_Task pt on t.other_id = pt.id
+        left join project p on pt.project_id = p.id
+        WHERE t.type_code = '2' and t.IS_VISIBLE = '0' and p.delete_flag = '0'
+        and t.delete_flag = '0'
+        and pt.delete_flag = '0'
+        union all
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.create_time,p.NAME as PRONAME,'' as TASKNAME,p.START_TIME
+        as START_TIME,p.END_TIME
+        as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,'' as
+        WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join PROJECT p on t.other_id = p.id
+        WHERE t.type_code = '3' and t.IS_VISIBLE = '0' and t.delete_flag = '0'
+        and p.delete_flag = '0'
+        union all
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.create_time,p.name as PRONAME,'' as TASKNAME,p.START_TIME
+        as START_TIME,p.END_TIME as
+        END_TIME,t.CREATE_BY,pr.WHETHER_TO_PASS ,pr.WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join PROJECT_REVIEW r on t.other_id = r.id
+        left join PROJECT p on r.project_id = p.id
+        LEFT JOIN ( select
+        PRA.REVIEW_TIME,PRA.PROJECT_ID,PRB.PROJECT_MANAGER_ID,PRB.PROJECT_MANAGER_NAME,PRB.PROJECT_APPROVER_ID,PRB.PROJECT_APPROVER_NAME,PRB.WHETHER_FINAL_REVIEW,PRB.WHETHER_TO_PASS
+        from (select max(REVIEW_TIME) as REVIEW_TIME,PROJECT_ID from
+        PROJECT_REVIEW group by PROJECT_ID)
+        PRA,PROJECT_REVIEW PRB
+        where PRA.PROJECT_ID=PRB.PROJECT_ID and PRA.REVIEW_TIME=PRB.REVIEW_TIME
+        and PRB.DELETE_FLAG =
+        '0' ) pr on pr.PROJECT_ID = p.id
+        WHERE t.type_code = '4' and t.IS_VISIBLE = '0' and t.delete_flag = '0'
+        and r.delete_flag = '0'
+        and p.delete_flag = '0'
+        union all
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.create_time ,p.name as PRONAME,to_char(pt.content) as
+        TASKNAME,e.cycle_start_time
+        as
+        START_TIME,e.cycle_end_time as END_TIME,t.CREATE_BY,'' as
+        WHETHER_TO_PASS ,'' as
+        WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join PROJECT_TASK pt on pt.id=t.other_id
+        left join TASK_EVALUATION e on pt.id = e.project_task_id
+        left join PROJECT p on pt.project_id = p.id
+        WHERE t.type_code = '5' and t.IS_VISIBLE = '0' and t.delete_flag = '0'
+        and e.delete_flag = '0'
+        and pt.delete_flag = '0'
+        and p.delete_flag = '0'
+
+        union all
+        /*查询重复事务的消息*/
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.REPEAT_REMIND_TIME as  create_time,mp.pro_name as PRONAME,'' as
+        TASKNAME,mp.start_time as
+        START_TIME,mp.end_time as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,''
+        as WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE t.REPEAT_REMIND_TIME is not null and t.REPEAT_REMIND_TIME
+        <![CDATA[<=]]> sysdate and t.type_code = '1' and
+        mp.is_public='1' and t.IS_VISIBLE = '0' and t.delete_flag = '0'
+
+        union all
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.create_time,p.name as PRONAME,i.index_name as
+        TASKNAME,i.start_time as
+        START_TIME,i.end_time as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,''
+        as WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join PROJECT_INDEX i on t.other_id = i.id
+        left join PROJECT p on i.project_id = p.id
+        WHERE t.type_code = '7' and t.IS_VISIBLE = '0' and t.delete_flag = '0'
+        and i.delete_flag = '0'
+        and p.delete_flag = '0'
+        UNION all
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,rt.remind_time as create_time,mp.pro_name as PRONAME,'' as
+        TASKNAME,mp.start_time as
+        START_TIME,mp.end_time as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,''
+        as WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        LEFT JOIN REMINDER_TIME rt ON t.REMIND_TIME_ID = rt.ID
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE rt.remind_time <![CDATA[<=]]> sysdate  and t.type_code = '1' and
+        mp.is_public='1' and t.IS_VISIBLE = '0' and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0' and
+        rt.delete_flag = 0
+        UNION all
+        /*事务任务消息*/
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,rt.remind_time as create_time,mp.pro_name as PRONAME,s.name as
+        TASKNAME,mp.start_time as
+        START_TIME,mp.end_time as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,''
+        as WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        LEFT JOIN REMINDER_TIME rt ON t.REMIND_TIME_ID = rt.ID
+        left join TASK s on t.other_id = s.ID
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on s.PRO_ID = mp.pro_id
+        WHERE rt.remind_time <![CDATA[<=]]> sysdate  and t.type_code = '1' and
+        mp.is_public='1' and t.IS_VISIBLE = '0' and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0' and
+        rt.delete_flag = 0  and s.DELETE_FLAG ='0'
+        UNION all
+        /*事务再次提醒与设定提醒时间无关*/
+        SELECT
+        t.ID,t.type_code,t.type_name,t.other_id,t.user_id,t.is_at,t.is_read,t.role_code,t.role_name,to_char(t.content)
+        as content,t.create_time as create_time,mp.pro_name as PRONAME,'' as
+        TASKNAME,mp.start_time as
+        START_TIME,mp.end_time as END_TIME,t.CREATE_BY,'' as WHETHER_TO_PASS ,''
+        as WHETHER_FINAL_REVIEW
+        FROM REMIND_RECORD t
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE t.type_name='事务再次提醒' and t.type_code = '1' and
+        mp.is_public='1' and t.IS_VISIBLE = '0' and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0'
+        ) A
+        left join (select USER_ID,USERNAME from SYS_USER where
+        DEL_FLAG = '0') su on
+        A.user_id=su.USER_ID
+        left join (select HEAD_IMAGE_URL,USERNAME from SYS_USER where DEL_FLAG = '0') head on
+        A.CREATE_BY=head.USERNAME
+        where A.USER_ID = #{userId}
+
+        <if test="content != null and '' != content">
+            AND
+            (A.content LIKE '%${content}%' OR A.PRONAME LIKE '%${content}%' OR A.TASKNAME LIKE
+                '%${content}%')
+        </if>
+        <if test="remind != null and '' != remind">
+            AND
+                (A.type_code = '1' OR A.type_code = '2')
+        </if>
+        <if test="approval != null and '' != approval">
+            and A.type_code = '4'
+        </if>
+        <if test="warning != null and '' != warning">
+            and A.type_code = '3'
+        </if>
+        <if test="taskCheck != null and '' != taskCheck">
+            and A.type_code = '5'
+        </if>
+        <if test="isAt != null and '' != isAt">
+            and A.is_at = '1'
+        </if>
+        <if test="readOrUnread != null and '' != readOrUnread">
+            and A.TASKNAME is not null
+        </if>
+        <if test="isRead != null and '' != isRead">
+            and A.is_read =
+            #{isRead}
+        </if>
+        <if test="isRead == '1'">
+        and A.END_TIME &gt;= (select  sysdate - interval '1' month as time  from dual)
+        </if>
+        order by DECODE(A.Is_Read, 0, 0), A.create_time desc
+    </select>
+
+
+    <select id="getReminderCount"
+            parameterType="com.cc.pojo.RemindRecordParams"
+            resultMap="RemindRecordPojo">
+        select distinct A.ID as REMIND_ID,A.OTHER_ID,A.ROLE_NAME,A.CONTENT,A.CREATE_TIME
+        from (
+        /*非事务提醒*/
+        SELECT
+        t.ID,t.other_id,t.role_name,to_char(t.content) as content,t.create_time FROM REMIND_RECORD t
+        WHERE t.type_code  &lt;&gt; '1'  and t.delete_flag = '0' and t.IS_VISIBLE = '0' and t.IS_READ ='0' and t.USER_ID = #{userId}
+        union all
+         /*重复事务提醒*/
+        SELECT
+        t.ID,t.other_id,t.role_name,to_char(t.content) as content,t.create_time FROM REMIND_RECORD t
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE t.REPEAT_REMIND_TIME is not null and t.REPEAT_REMIND_TIME
+        <![CDATA[<=]]> sysdate and t.type_code = '1' and
+        mp.is_public='1' and t.IS_VISIBLE = '0' and t.delete_flag = '0' and t.USER_ID = #{userId} and t.IS_READ ='0'
+
+        UNION all
+        /*不重复事务提醒*/
+        SELECT
+        t.ID,t.other_id,t.role_name,to_char(t.content) as content,t.create_time FROM REMIND_RECORD t
+        LEFT JOIN REMINDER_TIME rt ON  t.REMIND_TIME_ID = rt.ID
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE rt.remind_time <![CDATA[<=]]> sysdate
+        and t.type_code = '1' and mp.is_public='1' and t.IS_VISIBLE = '0' and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0' and rt.delete_flag = 0 and t.USER_ID = #{userId} and t.IS_READ ='0'
+
+        UNION all
+        /*事务任务消息*/
+        SELECT
+        t.ID,t.other_id,t.role_name,to_char(t.content) as content,t.create_time FROM REMIND_RECORD t
+        LEFT JOIN REMINDER_TIME rt ON  t.REMIND_TIME_ID = rt.ID
+        left join TASK s on t.other_id = s.ID
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on s.PRO_ID = mp.pro_id
+        WHERE rt.remind_time <![CDATA[<=]]> sysdate
+        and t.type_code = '1' and mp.is_public='1' and t.IS_VISIBLE = '0' and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0' and rt.delete_flag = 0 and t.USER_ID = #{userId} and t.IS_READ ='0' and s.DELETE_FLAG ='0'
+        union all
+        /*事务再次提醒与设定提醒时间无关*/
+        SELECT
+        t.ID,t.other_id,t.role_name,to_char(t.content) as content,t.create_time FROM REMIND_RECORD t
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE  t.type_name='事务再次提醒'
+        and t.type_code = '1' and mp.is_public='1' and t.IS_VISIBLE = '0' and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0'  and t.USER_ID = #{userId} and t.IS_READ ='0'
+        ) A
+    </select>
+
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List1">
+        ID, PROJECT_TASK_ID, CREATE_TIME, HAVE_CYCLES, CONTENT, CYCLE_START_TIME, CYCLE_END_TIME, DROP_CODE, DROP_NAME, CREATE_USER_ID, CREATE_USER_NAME
+    </sql>
+
+    <update id="updateRemindRecordForProject">
+        update REMIND_RECORD set IS_VISIBLE ='0',IS_READ='0',CREATE_TIME=sysdate,UPDATE_TIME=sysdate
+        where DELETE_FLAG='0' and IS_VISIBLE='1' and (TYPE_CODE='2' or TYPE_CODE='7') and
+        (OTHER_ID in (select pr.project_id from PROJECT_REVIEW pr where pr.id in
+        <foreach collection="projectReviewIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and pr.delete_flag = '0' ) or (OTHER_ID in (select ID from PROJECT_TASK where DELETE_FLAG='0'  and PROJECT_ID in
+        (select pr.project_id from PROJECT_REVIEW pr where pr.id in
+        <foreach collection="projectReviewIds" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and pr.delete_flag = '0' ))))
+    </update>
+
+
+    <update id="deleteProjectRemindRecord">
+        update REMIND_RECORD set DELETE_FLAG='1' where OTHER_ID in (
+            select id as id from PROJECT where id =#{projectId}
+            union
+            select id as id from PROJECT_TASK where PROJECT_ID=#{projectId} and DELETE_FLAG = '0'
+        )
+    </update>
+
+    <update id="restoreProjectRemindRecord">
+        update REMIND_RECORD set DELETE_FLAG='0',IS_READ='0' where OTHER_ID in (
+            select id as id from PROJECT where id =#{projectId}
+            union
+            select id as id from PROJECT_TASK where PROJECT_ID=#{projectId} and DELETE_FLAG = '0'
+        )
+    </update>
+
+    <insert id="batchInsert">
+            insert into REMIND_RECORD (ID, TYPE_CODE, TYPE_NAME, USER_ID, OTHER_ID, ROLE_CODE,
+            ROLE_NAME, CONTENT, IS_AT, IS_READ, CREATE_TIME, CREATE_BY, DELETE_FLAG,IS_VISIBLE)
+            SELECT A.*
+            FROM(
+            <foreach collection="remindRecordList" item="item" index="index" separator="UNION ALL">
+                select
+                #{item.id,jdbcType=VARCHAR} as id ,#{item.typeCode,jdbcType=VARCHAR} as
+                typeCode,#{item.typeName,jdbcType=VARCHAR} as typeName,#{item.userId,jdbcType=VARCHAR} as
+                userId,#{item.otherId,jdbcType=VARCHAR} as otherId,#{item.roleCode,jdbcType=VARCHAR} as
+                roleCode,#{item.roleName,jdbcType=VARCHAR} as roleName,
+                #{item.content,jdbcType=VARCHAR} as content,'0' as isAt,'0' as isRead,
+                sysdate,#{item.createBy,jdbcType=VARCHAR} as createBy,'0' as deleteFlag,'0' as isVisible
+                from dual
+            </foreach>
+            )A
+    </insert>
+
+    <select id="remindRecordInit" resultType="java.util.HashMap">
+        /*非事务提醒*/
+        SELECT
+        t.ID,t.other_id,t.user_id,t.role_name,to_char(t.content) as content,t.create_time,null as is_public,null as repeat_remind_time,null as remind_time,t.IS_VISIBLE FROM REMIND_RECORD t
+        WHERE t.type_code  &lt;&gt; '1'  and t.delete_flag = '0' and t.IS_READ ='0'
+        union
+         /*重复事务提醒*/
+        SELECT
+        t.ID,t.other_id,t.user_id,t.role_name,to_char(t.content) as content,t.create_time,mp.is_public,t.repeat_remind_time,null as remind_time,t.IS_VISIBLE FROM REMIND_RECORD t
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE t.REPEAT_REMIND_TIME is not null  and t.type_code = '1' and t.delete_flag = '0' and t.IS_READ ='0'
+
+        UNION
+        /*不重复事务提醒*/
+        SELECT
+        t.ID,t.other_id,t.user_id,t.role_name,to_char(t.content) as content,t.create_time,mp.is_public,null as repeat_remind_time,rt.remind_time,t.IS_VISIBLE FROM REMIND_RECORD t
+        LEFT JOIN REMINDER_TIME rt ON  t.REMIND_TIME_ID = rt.ID
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE t.type_code = '1'  and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0' and rt.delete_flag = 0 and t.IS_READ ='0'
+
+        UNION
+        /*事务任务消息*/
+        SELECT
+        t.ID,t.other_id,t.user_id,t.role_name,to_char(t.content) as content,t.create_time,mp.is_public,null as repeat_remind_time,rt.remind_time,t.IS_VISIBLE FROM REMIND_RECORD t
+        LEFT JOIN REMINDER_TIME rt ON  t.REMIND_TIME_ID = rt.ID
+        left join TASK s on t.other_id = s.ID
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on s.PRO_ID = mp.pro_id
+        WHERE t.type_code = '1'  and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0' and rt.delete_flag = 0 and t.IS_READ ='0' and s.DELETE_FLAG ='0'
+        union
+        /*事务再次提醒与设定提醒时间无关*/
+        SELECT
+        t.ID,t.other_id,t.user_id,t.role_name,to_char(t.content) as content,t.create_time,mp.is_public,null as repeat_remind_time,null as remind_time,t.IS_VISIBLE FROM REMIND_RECORD t
+        left join (select ID, PRO_ID, PRO_NAME, PRO_TYPE_CODE, PRO_TYPE_NAME,
+        IS_PUBLIC, START_TIME,
+        EXPECT_LENGTH_TIME, TIME_UNIT_CODE, TIME_UNIT_NAME, CREATE_TIME,
+        CREATE_BY, UPDATE_TIME,
+        UPDATE_BY, DELETE_FLAG,END_TIME,COMPLETE_TIME
+        from MANAGE_PRO ) mp on t.other_id = mp.pro_id
+        WHERE  t.type_name='事务再次提醒'
+        and t.type_code = '1'  and t.REPEAT_REMIND_TIME is null and
+        t.delete_flag = '0' and t.IS_READ ='0'
+    </select>
+</mapper>
