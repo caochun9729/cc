@@ -2,7 +2,6 @@ package com.cc.runner;
 
 import com.cc.controller.SocketController;
 import com.cc.redis.RedisUtil;
-import com.cc.schedule.TestTask;
 import com.cc.service.IRemindRecordService;
 import com.cc.websocket.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
