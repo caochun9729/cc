@@ -2,7 +2,7 @@ package com.example.controller;
 
 import com.alibaba.fastjson.JSONObject;
 
-import com.example.utils.WeChatUtil;
+import com.example.utils.HttpRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,13 +32,13 @@ public class OperationController {
     @RequestMapping("/getAccessToken")
     @ResponseBody
     public  String  getAccessToken(){
-
         String url="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+appid+"&secret="+secret;
         // 发送请求，返回Json字符串
-        String str = WeChatUtil.httpRequest(url, "GET", null);
+        String str = HttpRequest.httpReq(url, "GET", null);
         // 转成Json对象 获取openid
         JSONObject jsonObject = JSONObject.parseObject(str);
         System.out.println("access_token---"+jsonObject.toJSONString());
+        System.out.println("expires_in---"+Integer.valueOf(jsonObject.get("expires_in").toString()));
         // 我们需要的openid，在一个小程序中，openid是唯一的
         String access_token = jsonObject.get("access_token").toString();
         return access_token;
