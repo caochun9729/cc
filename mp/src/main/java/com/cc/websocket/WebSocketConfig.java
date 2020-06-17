@@ -19,6 +19,7 @@ public class WebSocketConfig extends WebMvcConfigurerAdapter implements WebSocke
 	@Autowired
 	private RedisUtil redisUtil;
 
+	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry arg0) {
 		//ע�ᴦ��������,����urlΪsocketServer������
 		arg0.addHandler(socketHandler, "/socketServer").addInterceptors(new WebSocketInterceptor(redisUtil)).setAllowedOrigins("*") ;
