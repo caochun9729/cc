@@ -18,6 +18,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -61,6 +62,13 @@ public class MybatisPlusConfig {
     public DataSource db2 () {
         return DruidDataSourceBuilder.create().build();
     }
+
+    @Bean(name = "db3")
+    @ConfigurationProperties(prefix = "spring.datasource.druid.db3" )
+    public DataSource db3 () {
+        return DruidDataSourceBuilder.create().build();
+    }
+
     /**
      * 动态数据源配置
      * @return
@@ -68,11 +76,13 @@ public class MybatisPlusConfig {
     @Bean
     @Primary
     public DataSource multipleDataSource (@Qualifier("db1") DataSource db1,
-                                          @Qualifier("db2") DataSource db2 ) {
+                                          @Qualifier("db2") DataSource db2,
+                                          @Qualifier("db3") DataSource db3) {
         DynamicDataSource dynamicDataSource = new DynamicDataSource();
         Map< Object, Object > targetDataSources = new HashMap<>();
         targetDataSources.put(DBTypeEnum.db1.getValue(), db1 );
         targetDataSources.put(DBTypeEnum.db2.getValue(), db2);
+        targetDataSources.put(DBTypeEnum.db3.getValue(), db3);
         dynamicDataSource.setTargetDataSources(targetDataSources);
         dynamicDataSource.setDefaultTargetDataSource(db1);
         return dynamicDataSource;
@@ -81,9 +91,8 @@ public class MybatisPlusConfig {
     @Bean("sqlSessionFactory")
     public SqlSessionFactory sqlSessionFactory() throws Exception {
         MybatisSqlSessionFactoryBean sqlSessionFactory = new MybatisSqlSessionFactoryBean();
-        sqlSessionFactory.setDataSource(multipleDataSource(db1(),db2()));
-        //sqlSessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/mapper/*/*Mapper.xml"));
-
+        sqlSessionFactory.setDataSource(multipleDataSource(db1(),db2(),db3()));
+        sqlSessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:/mapper/*Mapper.xml"));
         MybatisConfiguration configuration = new MybatisConfiguration();
         //configuration.setDefaultScriptingLanguage(MybatisXMLLanguageDriver.class);
         configuration.setJdbcTypeForNull(JdbcType.NULL);
@@ -91,6 +100,7 @@ public class MybatisPlusConfig {
         configuration.setCacheEnabled(false);
         sqlSessionFactory.setConfiguration(configuration);
         sqlSessionFactory.setPlugins(new Interceptor[]{ //PerformanceInterceptor(),OptimisticLockerInterceptor()
+                //添加分页功能
                 paginationInterceptor()
         });
         sqlSessionFactory.setGlobalConfig(globalConfiguration());
@@ -100,10 +110,14 @@ public class MybatisPlusConfig {
     @Bean
     public GlobalConfiguration globalConfiguration() {
         GlobalConfiguration conf = new GlobalConfiguration(new LogicSqlInjector());
-        conf.setLogicDeleteValue("-1");
-        conf.setLogicNotDeleteValue("1");
+        //逻辑删除配置
+        conf.setLogicDeleteValue("1");
+        conf.setLogicNotDeleteValue("0");
+        //主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
         conf.setIdType(0);
+        //自定义填充策略接口实现
         conf.setMetaObjectHandler(new MyMetaObjectHandler());
+        //驼峰下划线转换
         conf.setDbColumnUnderline(true);
         conf.setRefresh(true);
         return conf;

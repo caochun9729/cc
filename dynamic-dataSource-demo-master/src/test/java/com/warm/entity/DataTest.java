@@ -1,5 +1,6 @@
 package com.warm.entity;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.warm.system.service.db1.UserService;
 import com.warm.system.service.db2.OrderService;
 import org.junit.Test;
@@ -24,6 +25,7 @@ public class DataTest {
     public void test() {
         userService.getUserList().stream().forEach(item -> System.out.println(item));
         orderService.getOrderList().stream().forEach(item -> System.out.println(item));
+        userService.getTemplates().stream().forEach(item -> System.out.println(item));
     }
 
     @Test

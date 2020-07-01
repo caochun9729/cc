@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.service.impl.ServiceImpl;
 import com.warm.common.DBTypeEnum;
 import com.warm.common.DataSourceSwitch;
 import com.warm.system.entity.Order;
+import com.warm.system.entity.TemplateManager;
 import com.warm.system.entity.User;
 import com.warm.system.mapper.OrderMapper;
+import com.warm.system.mapper.TemplateManagerMapper;
 import com.warm.system.mapper.UserMapper;
 import com.warm.system.service.db1.UserService;
 import org.aspectj.weaver.ast.Or;
@@ -29,6 +31,8 @@ import java.util.List;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Autowired
     private OrderMapper orderMapper;
+    @Autowired
+    private TemplateManagerMapper templateManagerMapper;
     @Override
     public List<User> getUserList() {
 
@@ -51,6 +55,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         order.setUserId(121);
         orderMapper.insert(order);
         int i=1/0;
+    }
+
+    @DataSourceSwitch(DBTypeEnum.db3)
+    @Override
+    public List<TemplateManager> getTemplates() {
+
+        return templateManagerMapper.getFormManageList(null);
     }
 
     @DataSourceSwitch(DBTypeEnum.db2)

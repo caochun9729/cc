@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.warm.system.mapper.TemplateManagerMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.warm.system.entity.TemplateManager">
+        <id column="ID" property="id" />
+        <result column="TEMPLATE_NAME" property="templateName" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="UPDATE_TIME" property="updateTime" />
+        <result column="STATE" property="state" />
+        <result column="TEMP_TABLE_NAME" property="tempTableName" />
+        <result column="EXPLANATION" property="explanation" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        ID, TEMPLATE_NAME, CREATE_TIME, UPDATE_TIME,STATE,TEMP_TABLE_NAME,EXPLANATION
+    </sql>
+
+    <select id="getFormManageList" resultType="com.warm.system.entity.TemplateManager">
+        select ID, TEMPLATE_NAME, CREATE_TIME,STATE from TEMPLATE_MANAGER
+        <where>
+            <if test="null != tableName and ''!= tableName">
+                AND TEMPLATE_NAME like '%${tableName}%'
+            </if>
+
+        </where>
+    </select>
+
+</mapper>

@@ -61,6 +61,9 @@ public class DataSourceSwitchAspect {
                 case "db2":
                     DbContextHolder.setDbType(DBTypeEnum.db2);
                     break;
+                case "db3":
+                    DbContextHolder.setDbType(DBTypeEnum.db3);
+                    break;
                 default:
                     DbContextHolder.setDbType(dbTypeEnum);
             }

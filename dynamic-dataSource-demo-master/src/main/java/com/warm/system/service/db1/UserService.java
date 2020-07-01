@@ -1,6 +1,7 @@
 package com.warm.system.service.db1;
 
 import com.baomidou.mybatisplus.service.IService;
+import com.warm.system.entity.TemplateManager;
 import com.warm.system.entity.User;
 
 import java.math.BigDecimal;
@@ -20,6 +21,8 @@ public interface UserService extends IService<User> {
     void addUser();
 
     void addTOrder();
+
+    List<TemplateManager> getTemplates();
 
     BigDecimal getOrderPriceByUserId(Integer userId);
 }
