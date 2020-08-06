@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -29,11 +30,16 @@ public class AsyncController {
 
     @GetMapping("/b")
     public String b() throws InterruptedException, ExecutionException {
-        Future<String> stringFuture = asyncService.sendMessage3();
-        if(stringFuture.isDone()){
-            System.out.println(stringFuture.get());
-            return stringFuture.get();
+        Future<String> sendMessage3 = asyncService.sendMessage3();
+        Future<String> sendMessage4 = asyncService.sendMessage4();
+        String result="hello world";
+        System.out.println(new Date());
+        while (!sendMessage3.isDone() || !sendMessage4.isDone()){
+            Thread.sleep(50);
+            result += sendMessage3.get();
+            result += sendMessage4.get();
         }
-        return "hello world!";
+        System.out.println(new Date());
+        return result;
     }
 }

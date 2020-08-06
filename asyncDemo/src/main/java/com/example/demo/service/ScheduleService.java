@@ -33,7 +33,7 @@ public class ScheduleService {
     @Scheduled(cron=times1)
     public void taskTest() {
 
-        logger.info("定时任务开始执行。。。");
+        logger.info("定时任务开始执行。。。"+sdf.format(new Date()));
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {

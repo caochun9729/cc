@@ -39,11 +39,19 @@ public class AsyncService {
     @Async("taskExecutor") // 指定线程池，也可以直接写@Async
     public Future<String> sendMessage3() throws InterruptedException {
 
-        log.info("发送短信方法---- 2   执行开始");
+        log.info("发送短信方法---- 3   执行开始"+ new Date());
         Thread.sleep(2000); // 模拟耗时
-        log.info("发送短信方法---- 2   执行结束" + new Date());
+        log.info("发送短信方法---- 3   执行结束" + new Date());
         return new AsyncResult<String>("发送短信3");
     }
 
+    // 发送提醒短信 3
+    @Async("taskExecutor") // 指定线程池，也可以直接写@Async
+    public Future<String> sendMessage4() throws InterruptedException {
 
+        log.info("发送短信方法---- 4   执行开始"+ new Date());
+        Thread.sleep(2000); // 模拟耗时
+        log.info("发送短信方法---- 4   执行结束" + new Date());
+        return new AsyncResult<String>("发送短信4");
+    }
 }
