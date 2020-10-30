@@ -1,0 +1,21 @@
+
+server:
+  servlet:
+    #  定义项目的访问访问路径
+    context-path: /consumer
+    #定义端口号
+  port: 7001
+spring:
+    #下面是整合redis集群使用的配置
+#  redis:
+#    cluster:
+#      expire-seconds: 120
+#      command-timeout: 10000
+#      nodes: 127.0.0.1:6379,datanode23:6379,datanode24:6379,datanode25:6379,datanode26:6379,datanode27:6379
+  application:
+    #定义应用名称，即服务名称
+    name: consumer-server
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:5060/eureka/eureka
