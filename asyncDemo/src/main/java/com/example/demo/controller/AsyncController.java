@@ -42,4 +42,9 @@ public class AsyncController {
         System.out.println(new Date());
         return result;
     }
+
+
+    public void test(){
+
+    }
 }
